@@ -1,0 +1,347 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Andrea Soto",
+      "email": "admin@pedidos360.cl",
+      "role": "ADMIN"
+    },
+    {
+      "id": 2,
+      "name": "Carlos Muñoz",
+      "email": "operador@pedidos360.cl",
+      "role": "OPERATOR"
+    },
+    {
+      "id": 3,
+      "name": "Valentina Rojas",
+      "email": "valentina.rojas@correo.cl",
+      "role": "CUSTOMER"
+    },
+    {
+      "id": 4,
+      "name": "Diego Fuentes",
+      "email": "diego.fuentes@correo.cl",
+      "role": "CUSTOMER"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "sku": "CAF-001",
+      "name": "Café en grano 1 kg",
+      "description": "Café de especialidad tostado medio.",
+      "price": 15990,
+      "stock": 40,
+      "active": true,
+      "imageUrl": "/images/products/caf-001.jpg"
+    },
+    {
+      "id": 2,
+      "sku": "TE-002",
+      "name": "Té verde 100 bolsitas",
+      "description": "Té verde en bolsitas individuales.",
+      "price": 4990,
+      "stock": 25,
+      "active": true,
+      "imageUrl": "/images/products/te-002.jpg"
+    },
+    {
+      "id": 3,
+      "sku": "AZU-003",
+      "name": "Azúcar rubia 1 kg",
+      "description": "Azúcar rubia de caña.",
+      "price": 1890,
+      "stock": 60,
+      "active": true,
+      "imageUrl": "/images/products/azu-003.jpg"
+    },
+    {
+      "id": 4,
+      "sku": "LEC-004",
+      "name": "Leche de almendras 1 L",
+      "description": "Bebida vegetal sin azúcar añadida.",
+      "price": 3290,
+      "stock": 0,
+      "active": true,
+      "imageUrl": "/images/products/lec-004.jpg"
+    },
+    {
+      "id": 5,
+      "sku": "GAL-005",
+      "name": "Galletas de avena 300 g",
+      "description": "Galletas integrales de avena y pasas.",
+      "price": 2490,
+      "stock": 35,
+      "active": true,
+      "imageUrl": "/images/products/gal-005.jpg"
+    },
+    {
+      "id": 6,
+      "sku": "TAZ-006",
+      "name": "Taza cerámica 350 ml",
+      "description": "Taza blanca de cerámica esmaltada.",
+      "price": 6990,
+      "stock": 12,
+      "active": true,
+      "imageUrl": "/images/products/taz-006.jpg"
+    },
+    {
+      "id": 7,
+      "sku": "FIL-007",
+      "name": "Filtros de papel N°4 (100 u.)",
+      "description": "Filtros para cafetera de goteo.",
+      "price": 2990,
+      "stock": 3,
+      "active": true,
+      "imageUrl": "/images/products/fil-007.jpg"
+    },
+    {
+      "id": 8,
+      "sku": "CAP-008",
+      "name": "Cápsulas compatibles (10 u.)",
+      "description": "Producto descontinuado.",
+      "price": 3990,
+      "stock": 8,
+      "active": false,
+      "imageUrl": "/images/products/cap-008.jpg"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "customerId": 3,
+      "customerName": "Valentina Rojas",
+      "items": [
+        {
+          "productId": 1,
+          "productName": "Café en grano 1 kg",
+          "quantity": 2,
+          "unitPrice": 15990
+        },
+        {
+          "productId": 3,
+          "productName": "Azúcar rubia 1 kg",
+          "quantity": 1,
+          "unitPrice": 1890
+        }
+      ],
+      "total": 33870,
+      "status": "DELIVERED",
+      "createdAt": "2026-09-01T13:00:00.000Z",
+      "updatedAt": "2026-09-02T01:00:00.000Z",
+      "history": [
+        {
+          "status": "CREATED",
+          "at": "2026-09-01T13:00:00.000Z",
+          "by": "Valentina Rojas"
+        },
+        {
+          "status": "ACCEPTED",
+          "at": "2026-09-01T16:00:00.000Z",
+          "by": "Carlos Muñoz"
+        },
+        {
+          "status": "PREPARING",
+          "at": "2026-09-01T19:00:00.000Z",
+          "by": "Carlos Muñoz"
+        },
+        {
+          "status": "DISPATCHED",
+          "at": "2026-09-01T22:00:00.000Z",
+          "by": "Carlos Muñoz"
+        },
+        {
+          "status": "DELIVERED",
+          "at": "2026-09-02T01:00:00.000Z",
+          "by": "Carlos Muñoz"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "customerId": 4,
+      "customerName": "Diego Fuentes",
+      "items": [
+        {
+          "productId": 6,
+          "productName": "Taza cerámica 350 ml",
+          "quantity": 2,
+          "unitPrice": 6990
+        },
+        {
+          "productId": 5,
+          "productName": "Galletas de avena 300 g",
+          "quantity": 3,
+          "unitPrice": 2490
+        }
+      ],
+      "total": 21450,
+      "status": "DISPATCHED",
+      "createdAt": "2026-09-10T14:30:00.000Z",
+      "updatedAt": "2026-09-10T23:30:00.000Z",
+      "history": [
+        {
+          "status": "CREATED",
+          "at": "2026-09-10T14:30:00.000Z",
+          "by": "Diego Fuentes"
+        },
+        {
+          "status": "ACCEPTED",
+          "at": "2026-09-10T17:30:00.000Z",
+          "by": "Carlos Muñoz"
+        },
+        {
+          "status": "PREPARING",
+          "at": "2026-09-10T20:30:00.000Z",
+          "by": "Carlos Muñoz"
+        },
+        {
+          "status": "DISPATCHED",
+          "at": "2026-09-10T23:30:00.000Z",
+          "by": "Carlos Muñoz"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "customerId": 3,
+      "customerName": "Valentina Rojas",
+      "items": [
+        {
+          "productId": 2,
+          "productName": "Té verde 100 bolsitas",
+          "quantity": 1,
+          "unitPrice": 4990
+        },
+        {
+          "productId": 5,
+          "productName": "Galletas de avena 300 g",
+          "quantity": 2,
+          "unitPrice": 2490
+        }
+      ],
+      "total": 9970,
+      "status": "PREPARING",
+      "createdAt": "2026-09-18T12:15:00.000Z",
+      "updatedAt": "2026-09-18T18:15:00.000Z",
+      "history": [
+        {
+          "status": "CREATED",
+          "at": "2026-09-18T12:15:00.000Z",
+          "by": "Valentina Rojas"
+        },
+        {
+          "status": "ACCEPTED",
+          "at": "2026-09-18T15:15:00.000Z",
+          "by": "Carlos Muñoz"
+        },
+        {
+          "status": "PREPARING",
+          "at": "2026-09-18T18:15:00.000Z",
+          "by": "Carlos Muñoz"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "customerId": 4,
+      "customerName": "Diego Fuentes",
+      "items": [
+        {
+          "productId": 1,
+          "productName": "Café en grano 1 kg",
+          "quantity": 1,
+          "unitPrice": 15990
+        },
+        {
+          "productId": 7,
+          "productName": "Filtros de papel N°4 (100 u.)",
+          "quantity": 1,
+          "unitPrice": 2990
+        }
+      ],
+      "total": 18980,
+      "status": "ACCEPTED",
+      "createdAt": "2026-09-22T15:00:00.000Z",
+      "updatedAt": "2026-09-22T18:00:00.000Z",
+      "history": [
+        {
+          "status": "CREATED",
+          "at": "2026-09-22T15:00:00.000Z",
+          "by": "Diego Fuentes"
+        },
+        {
+          "status": "ACCEPTED",
+          "at": "2026-09-22T18:00:00.000Z",
+          "by": "Carlos Muñoz"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "customerId": 3,
+      "customerName": "Valentina Rojas",
+      "items": [
+        {
+          "productId": 4,
+          "productName": "Leche de almendras 1 L",
+          "quantity": 2,
+          "unitPrice": 3290
+        }
+      ],
+      "total": 6580,
+      "status": "CANCELLED",
+      "createdAt": "2026-09-23T11:45:00.000Z",
+      "updatedAt": "2026-09-23T14:45:00.000Z",
+      "history": [
+        {
+          "status": "CREATED",
+          "at": "2026-09-23T11:45:00.000Z",
+          "by": "Valentina Rojas"
+        },
+        {
+          "status": "CANCELLED",
+          "at": "2026-09-23T14:45:00.000Z",
+          "by": "Carlos Muñoz"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "customerId": 4,
+      "customerName": "Diego Fuentes",
+      "items": [
+        {
+          "productId": 1,
+          "productName": "Café en grano 1 kg",
+          "quantity": 1,
+          "unitPrice": 15990
+        },
+        {
+          "productId": 2,
+          "productName": "Té verde 100 bolsitas",
+          "quantity": 2,
+          "unitPrice": 4990
+        },
+        {
+          "productId": 3,
+          "productName": "Azúcar rubia 1 kg",
+          "quantity": 1,
+          "unitPrice": 1890
+        }
+      ],
+      "total": 27860,
+      "status": "CREATED",
+      "createdAt": "2026-09-25T16:20:00.000Z",
+      "updatedAt": "2026-09-25T16:20:00.000Z",
+      "history": [
+        {
+          "status": "CREATED",
+          "at": "2026-09-25T16:20:00.000Z",
+          "by": "Diego Fuentes"
+        }
+      ]
+    }
+  ]
+}
