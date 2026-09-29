@@ -12,6 +12,7 @@ function result(claims: Record<string, unknown>): AuthenticationResult {
 describe('userFromToken', () => {
   it.each([
     ['Admin', 'ADMIN'],
+    ['Administrador', 'ADMIN'],
     ['Operador', 'OPERATOR'],
     ['Cliente', 'CUSTOMER'],
   ])('maps the API role %s and its subject to the frontend user', (backendRole, frontendRole) => {

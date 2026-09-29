@@ -3,6 +3,7 @@ import type { Role, User } from './types'
 
 const ROLE_MAP: Record<string, Role> = {
   Admin: 'ADMIN',
+  Administrador: 'ADMIN',
   Operador: 'OPERATOR',
   Cliente: 'CUSTOMER',
 }
@@ -21,7 +22,7 @@ function tokenClaims(accessToken: string): Record<string, unknown> | null {
 export function userFromToken(result: AuthenticationResult): User | null {
   const claims = tokenClaims(result.accessToken)
   const roles = Array.isArray(claims?.roles) ? claims.roles : []
-  const role = ['Admin', 'Operador', 'Cliente']
+  const role = Object.keys(ROLE_MAP)
     .filter((value) => roles.includes(value))
     .map((value) => ROLE_MAP[value])[0]
   if (!role) return null
