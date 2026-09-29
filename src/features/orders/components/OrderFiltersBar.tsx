@@ -1,13 +1,12 @@
 import { Button, MenuItem, Stack, TextField } from '@mui/material'
-import type { User } from '@/auth/types'
+import { parseId, type EntityId } from '@/shared/utils/entityId'
 import { ORDER_STATUSES, STATUS_LABELS, type OrderStatus } from '../types'
 import { EMPTY_ORDER_FILTERS, type OrderFilters } from '../utils/filterOrders'
 
 interface OrderFiltersBarProps {
   filters: OrderFilters
   onChange: (filters: OrderFilters) => void
-  /** Customers for the customer filter. Omit to hide it (CUSTOMER role). */
-  customers?: readonly User[]
+  customers?: readonly { id: EntityId; name: string }[]
 }
 
 export function OrderFiltersBar({ filters, onChange, customers }: OrderFiltersBarProps) {
@@ -18,8 +17,6 @@ export function OrderFiltersBar({ filters, onChange, customers }: OrderFiltersBa
     filters.status !== 'all' || filters.from || filters.to || filters.customerId !== 'all'
 
   return (
-    // gap + wrap (not spacing): filters move to a new line instead of overflowing
-    // when the drawer leaves little room (e.g. 1024px wide).
     <Stack
       direction={{ xs: 'column', md: 'row' }}
       sx={{ mb: 2, gap: 2, flexWrap: 'wrap', alignItems: { md: 'center' } }}
@@ -67,7 +64,7 @@ export function OrderFiltersBar({ filters, onChange, customers }: OrderFiltersBa
           size="small"
           value={filters.customerId}
           onChange={(event) =>
-            set('customerId', event.target.value === 'all' ? 'all' : Number(event.target.value))
+            set('customerId', event.target.value === 'all' ? 'all' : parseId(event.target.value))
           }
           sx={{ minWidth: 200 }}
         >

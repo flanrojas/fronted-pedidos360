@@ -1,3 +1,5 @@
+import type { EntityId } from '@/shared/utils/entityId'
+
 export type OrderStatus =
   'CREATED' | 'ACCEPTED' | 'PREPARING' | 'DISPATCHED' | 'DELIVERED' | 'CANCELLED'
 
@@ -20,32 +22,27 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
 }
 
 export interface OrderItem {
-  productId: number
-  /** Snapshot of the product name when the order was created. */
+  productId: EntityId
   productName: string
   quantity: number
-  /** Snapshot of the product price (CLP) when the order was created. */
   unitPrice: number
+  priceKnown?: boolean
 }
 
 export interface StatusHistoryEntry {
   status: OrderStatus
-  /** ISO 8601 */
   at: string
-  /** Name of the user who made the change. */
   by: string
 }
 
 export interface Order {
-  id: number
-  customerId: number
+  id: EntityId
+  customerId: EntityId
   customerName: string
   items: OrderItem[]
   total: number
   status: OrderStatus
-  /** ISO 8601 */
   createdAt: string
-  /** ISO 8601 */
   updatedAt: string
   history: StatusHistoryEntry[]
 }
@@ -53,6 +50,5 @@ export interface Order {
 export type NewOrder = Omit<Order, 'id'>
 
 export interface OrderListParams {
-  /** Only this customer's orders (always set for CUSTOMER). */
-  customerId?: number
+  customerId?: EntityId
 }

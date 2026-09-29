@@ -1,9 +1,5 @@
 import type { OrderStatus } from '../types'
 
-/**
- * Allowed order status transitions (CLAUDE.md). Anything not listed is invalid.
- * Key rule: an order cannot be dispatched unless it was accepted (and prepared) first.
- */
 export const TRANSITIONS: Readonly<Record<OrderStatus, readonly OrderStatus[]>> = {
   CREATED: ['ACCEPTED', 'CANCELLED'],
   ACCEPTED: ['PREPARING', 'CANCELLED'],

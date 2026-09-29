@@ -3,11 +3,9 @@ import { renderWithProviders } from '@/test/renderWithProviders'
 import { adminUser, customerUser, operatorUser } from '@/test/testUsers'
 import { catalogService } from '@/features/catalog/services/catalogService'
 import { ordersService } from '@/features/orders/services/ordersService'
-import { usersService } from '@/features/users/services/usersService'
 import { routes } from './routes'
 
 vi.mock('@/features/orders/services/ordersService')
-vi.mock('@/features/users/services/usersService')
 vi.mock('@/features/catalog/services/catalogService')
 
 function getMenu() {
@@ -17,7 +15,6 @@ function getMenu() {
 describe('AppLayout', () => {
   beforeEach(() => {
     vi.mocked(ordersService.list).mockResolvedValue([])
-    vi.mocked(usersService.list).mockResolvedValue([])
     vi.mocked(catalogService.list).mockResolvedValue([])
   })
 
@@ -75,5 +72,19 @@ describe('AppLayout', () => {
     const icon = link.querySelector('img')
     expect(icon).toHaveAttribute('src', src)
     expect(icon).toHaveAttribute('alt', '')
+  })
+})
+
+describe('AppLayout role indicator', () => {
+  beforeEach(() => {
+    vi.mocked(ordersService.list).mockResolvedValue([])
+    vi.mocked(catalogService.list).mockResolvedValue([])
+  })
+
+  it('keeps the role chip visible', async () => {
+    renderWithProviders({ user: adminUser, initialPath: '/403', routes })
+    expect(await screen.findByText('Administrador')).toBeInTheDocument()
+    await screen.findByRole('heading', { name: 'Acceso denegado' })
+    expect(screen.getByText('Administrador')).toBeInTheDocument()
   })
 })

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { User } from '@/auth/types'
+import { isValidId, type EntityId } from '@/shared/utils/entityId'
 import { PRODUCTS_KEY } from '@/features/catalog/hooks/useProducts'
 import { ordersService } from '../services/ordersService'
 import type { NewOrder, Order, OrderListParams, OrderStatus } from '../types'
@@ -14,11 +15,11 @@ export function useOrders(params: OrderListParams, { enabled = true } = {}) {
   })
 }
 
-export function useOrder(id: number | undefined) {
+export function useOrder(id: EntityId | undefined) {
   return useQuery({
     queryKey: [...ORDERS_KEY, 'detail', id],
-    queryFn: () => ordersService.getById(id as number),
-    enabled: id !== undefined && Number.isInteger(id),
+    queryFn: () => ordersService.getById(id as EntityId),
+    enabled: isValidId(id),
   })
 }
 
@@ -33,7 +34,6 @@ export function useChangeOrderStatus() {
   return useMutation({
     mutationFn: ({ order, to, user }: ChangeStatusInput) =>
       ordersService.changeStatus(order, to, user),
-    // Also on error: a stale-order or stock error means the cached data is outdated.
     onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ORDERS_KEY }),

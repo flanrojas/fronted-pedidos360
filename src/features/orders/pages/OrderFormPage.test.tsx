@@ -2,15 +2,13 @@ import { screen, within } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import { catalogService } from '@/features/catalog/services/catalogService'
-import { usersService } from '@/features/users/services/usersService'
 import { sampleProducts } from '@/test/fixtures/products'
 import { renderWithProviders } from '@/test/renderWithProviders'
-import { adminUser, customerUser, operatorUser, otherCustomerUser } from '@/test/testUsers'
+import { customerUser, operatorUser } from '@/test/testUsers'
 import { ordersService } from '../services/ordersService'
 import { OrderFormPage } from './OrderFormPage'
 
 vi.mock('@/features/catalog/services/catalogService')
-vi.mock('@/features/users/services/usersService')
 vi.mock('../services/ordersService')
 
 const routes: RouteObject[] = [
@@ -34,12 +32,6 @@ async function addProduct(user: UserEvent, name: string, quantity: string) {
 describe('OrderFormPage', () => {
   beforeEach(() => {
     vi.mocked(catalogService.list).mockResolvedValue(sampleProducts)
-    vi.mocked(usersService.list).mockResolvedValue([
-      adminUser,
-      operatorUser,
-      customerUser,
-      otherCustomerUser,
-    ])
     vi.mocked(ordersService.create).mockImplementation(async (order) => ({ id: 7, ...order }))
   })
 
@@ -73,7 +65,7 @@ describe('OrderFormPage', () => {
     await addProduct(user, 'Café en grano', '2')
 
     const table = screen.getByRole('table', { name: 'Productos del pedido' })
-    expect(within(table).getAllByRole('row')).toHaveLength(3) // header + 1 line + footer
+    expect(within(table).getAllByRole('row')).toHaveLength(3)
     expect(within(table).getByLabelText('Cantidad de Café en grano 1 kg')).toHaveValue(3)
     expect(screen.getByLabelText('Total del pedido')).toHaveTextContent('$47.970')
   })
@@ -109,28 +101,25 @@ describe('OrderFormPage', () => {
       history: [{ status: 'CREATED', by: 'Valentina Rojas' }],
     })
     expect(order.createdAt).toBe(order.updatedAt)
-    expect(catalogService.updateStock).not.toHaveBeenCalled()
+    expect(catalogService.adjustStock).not.toHaveBeenCalled()
   })
 
-  it('OPERATOR must choose a customer', async () => {
+  it('OPERATOR must enter a customer ID', async () => {
     const user = userEvent.setup()
     renderForm(operatorUser)
 
     await addProduct(user, 'Café en grano', '1')
     await user.click(screen.getByRole('button', { name: 'Crear pedido' }))
-    expect(await screen.findByText('Selecciona un cliente')).toBeInTheDocument()
+    expect(await screen.findByText('Ingresa un ID de cliente válido')).toBeInTheDocument()
     expect(ordersService.create).not.toHaveBeenCalled()
 
-    await user.click(screen.getByRole('combobox', { name: /Cliente/ }))
-    const options = await screen.findAllByRole('option')
-    expect(options.map((o) => o.textContent)).toEqual(['Valentina Rojas', 'Diego Fuentes'])
-    await user.click(screen.getByRole('option', { name: 'Diego Fuentes' }))
+    await user.type(screen.getByRole('textbox', { name: 'ID del cliente' }), 'cliente-004')
     await user.click(screen.getByRole('button', { name: 'Crear pedido' }))
 
     await screen.findByRole('heading', { name: 'Listado de pedidos' })
     expect(vi.mocked(ordersService.create).mock.calls[0][0]).toMatchObject({
-      customerId: 4,
-      customerName: 'Diego Fuentes',
+      customerId: 'cliente-004',
+      customerName: 'cliente-004',
       history: [{ status: 'CREATED', by: 'Carlos Muñoz' }],
     })
   })
@@ -174,5 +163,30 @@ describe('OrderFormPage', () => {
       'src',
       '/images/products/caf-001.jpg',
     )
+  })
+})
+
+describe('OrderFormPage with backend IDs', () => {
+  beforeEach(() => {
+    vi.mocked(catalogService.list).mockResolvedValue(sampleProducts)
+    vi.mocked(ordersService.create).mockImplementation(async (order) => ({
+      id: 'uuid-new-order',
+      ...order,
+    }))
+  })
+
+  it('returns to the backend order list after creating an order', async () => {
+    const user = userEvent.setup()
+    const { router } = renderWithProviders({
+      user: customerUser,
+      initialPath: '/orders/new',
+      routes: [...routes, { path: '/orders/:id', element: <h1>Detalle</h1> }],
+    })
+
+    await addProduct(user, 'Café en grano', '1')
+    await user.click(screen.getByRole('button', { name: 'Crear pedido' }))
+
+    await screen.findByRole('heading', { name: 'Listado de pedidos' })
+    expect(router.state.location.pathname).toBe('/orders')
   })
 })

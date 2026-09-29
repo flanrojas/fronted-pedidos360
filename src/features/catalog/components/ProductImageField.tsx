@@ -10,12 +10,10 @@ interface ProductImageFieldProps {
   value: string
   onChange: (value: string) => void
   onBlur?: () => void
-  /** Validation error from the form schema. */
   error?: string
   productName: string
 }
 
-/** Photo picker: upload from the computer (resized in the browser) or paste a URL. */
 export function ProductImageField({
   value,
   onChange,
@@ -38,7 +36,6 @@ export function ProductImageField({
       setUploadError(err instanceof Error ? err.message : 'No se pudo procesar la imagen.')
     } finally {
       setProcessing(false)
-      // Allow choosing the same file again after removing it.
       if (inputRef.current) inputRef.current.value = ''
     }
   }

@@ -1,6 +1,5 @@
 import { theme } from './theme'
 
-/** WCAG relative luminance of a #rrggbb color. */
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((i) => {
     const channel = parseInt(hex.slice(i, i + 2), 16) / 255

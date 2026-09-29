@@ -17,15 +17,15 @@ import {
 import type { FieldArrayWithId, FieldErrors, UseFormRegister } from 'react-hook-form'
 import { ProductImage } from '@/features/catalog/components/ProductImage'
 import type { Product } from '@/features/catalog/types'
+import type { EntityId } from '@/shared/utils/entityId'
 import { formatCLP } from '@/shared/utils/formatCurrency'
 import type { OrderFormValues } from '../schemas/orderFormSchema'
 import { calculateSubtotal } from '../utils/orderTotals'
 
 interface OrderLinesTableProps {
   fields: FieldArrayWithId<OrderFormValues, 'items'>[]
-  /** Current (watched) quantities, index-aligned with `fields`. */
   quantities: readonly number[]
-  productsById: ReadonlyMap<number, Product>
+  productsById: ReadonlyMap<EntityId, Product>
   register: UseFormRegister<OrderFormValues>
   errors: FieldErrors<OrderFormValues>['items']
   total: number

@@ -3,7 +3,6 @@ import { Button, Paper, Skeleton, Stack, Typography } from '@mui/material'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '@/auth/useAuth'
 import { useProducts } from '@/features/catalog/hooks/useProducts'
-import { useCustomers } from '@/features/users/hooks/useUsers'
 import { QueryErrorAlert } from '@/shared/components/QueryErrorAlert'
 import { useNotify } from '@/shared/notifications/useNotify'
 import { getErrorMessage } from '@/shared/utils/getErrorMessage'
@@ -19,7 +18,6 @@ export function OrderFormPage() {
   const isCustomer = currentUser?.role === 'CUSTOMER'
 
   const productsQuery = useProducts()
-  const customersQuery = useCustomers({ enabled: !isCustomer })
   const createOrder = useCreateOrder()
 
   if (!currentUser) return null
@@ -27,7 +25,7 @@ export function OrderFormPage() {
   const handleSubmit = (values: OrderFormValues) => {
     const customer = isCustomer
       ? currentUser
-      : customersQuery.data?.find((c) => c.id === values.customerId)
+      : { id: values.customerId, name: String(values.customerId) }
     if (!customer || !productsQuery.data) return
 
     const order = buildNewOrder({
@@ -46,7 +44,7 @@ export function OrderFormPage() {
   }
 
   const renderBody = () => {
-    if (productsQuery.isPending || (!isCustomer && customersQuery.isPending)) {
+    if (productsQuery.isPending) {
       return (
         <Stack spacing={2} aria-label="Cargando formulario">
           {[0, 1, 2].map((i) => (
@@ -63,18 +61,9 @@ export function OrderFormPage() {
         />
       )
     }
-    if (!isCustomer && customersQuery.isError) {
-      return (
-        <QueryErrorAlert
-          message={`No se pudieron cargar los clientes. ${getErrorMessage(customersQuery.error)}`}
-          onRetry={() => void customersQuery.refetch()}
-        />
-      )
-    }
     return (
       <OrderForm
         products={productsQuery.data}
-        customers={isCustomer ? undefined : customersQuery.data}
         fixedCustomer={isCustomer ? currentUser : undefined}
         submitting={createOrder.isPending}
         onSubmit={handleSubmit}

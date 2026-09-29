@@ -5,7 +5,6 @@ export type NotificationSeverity = 'success' | 'error' | 'warning' | 'info'
 export interface Notification {
   severity: NotificationSeverity
   message: string
-  /** Optional bullet list shown under the message (e.g. products without stock). */
   details?: readonly string[]
 }
 

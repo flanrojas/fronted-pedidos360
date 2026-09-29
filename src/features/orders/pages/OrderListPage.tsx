@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { can } from '@/auth/permissions'
 import { useAuth } from '@/auth/useAuth'
-import { useCustomers } from '@/features/users/hooks/useUsers'
 import { EmptyState } from '@/shared/components/EmptyState'
 import { QueryErrorAlert } from '@/shared/components/QueryErrorAlert'
 import { getErrorMessage } from '@/shared/utils/getErrorMessage'
@@ -20,7 +19,6 @@ export function OrderListPage() {
   const viewAll = can(role, 'orders:viewAll')
   const canCreate = can(role, 'orders:create')
 
-  // A CUSTOMER only ever requests their own orders.
   const params = useMemo<OrderListParams>(
     () => (viewAll ? {} : { customerId: currentUser?.id }),
     [viewAll, currentUser?.id],
@@ -34,7 +32,12 @@ export function OrderListPage() {
   } = useOrders(params, {
     enabled: currentUser !== null,
   })
-  const customersQuery = useCustomers({ enabled: viewAll })
+  const customers = useMemo(() => Array.from(
+    new Map((orders ?? []).map((order) => [order.customerId, {
+      id: order.customerId,
+      name: order.customerName,
+    }])).values(),
+  ), [orders])
 
   const [filters, setFilters] = useState<OrderFilters>(EMPTY_ORDER_FILTERS)
   const visibleOrders = useMemo(() => filterOrders(orders ?? [], filters), [orders, filters])
@@ -107,9 +110,8 @@ export function OrderListPage() {
       <OrderFiltersBar
         filters={filters}
         onChange={setFilters}
-        customers={viewAll ? (customersQuery.data ?? []) : undefined}
+        customers={viewAll ? customers : undefined}
       />
-
       {renderContent()}
     </>
   )

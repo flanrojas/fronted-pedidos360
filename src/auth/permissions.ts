@@ -8,11 +8,6 @@ export type Action =
   | 'orders:create'
   | 'orders:changeStatus'
 
-/**
- * Permission matrix from CLAUDE.md.
- * - `orders:view`: can open the orders module (CUSTOMER only sees their own orders).
- * - `orders:viewAll`: sees every customer's orders.
- */
 const PERMISSIONS: Record<Action, readonly Role[]> = {
   'catalog:view': ['ADMIN', 'OPERATOR'],
   'catalog:manage': ['ADMIN'],

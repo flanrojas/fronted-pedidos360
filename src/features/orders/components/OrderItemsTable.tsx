@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import { ProductImage } from '@/features/catalog/components/ProductImage'
+import type { EntityId } from '@/shared/utils/entityId'
 import { formatCLP } from '@/shared/utils/formatCurrency'
 import type { OrderItem } from '../types'
 import { calculateSubtotal } from '../utils/orderTotals'
@@ -18,8 +19,7 @@ import { calculateSubtotal } from '../utils/orderTotals'
 interface OrderItemsTableProps {
   items: readonly OrderItem[]
   total: number
-  /** Current photo per product id. Missing entries show the placeholder. */
-  imagesByProductId?: ReadonlyMap<number, string | undefined>
+  imagesByProductId?: ReadonlyMap<EntityId, string | undefined>
 }
 
 export function OrderItemsTable({ items, total, imagesByProductId }: OrderItemsTableProps) {
@@ -53,17 +53,17 @@ export function OrderItemsTable({ items, total, imagesByProductId }: OrderItemsT
                       color="text.secondary"
                       sx={{ display: { xs: 'block', sm: 'none' } }}
                     >
-                      {formatCLP(item.unitPrice)} c/u
+                      {item.priceKnown === false ? 'Precio no registrado' : `${formatCLP(item.unitPrice)} c/u`}
                     </Typography>
                   </div>
                 </Stack>
               </TableCell>
               <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                {formatCLP(item.unitPrice)}
+                {item.priceKnown === false ? '—' : formatCLP(item.unitPrice)}
               </TableCell>
               <TableCell align="right">{item.quantity}</TableCell>
               <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                {formatCLP(calculateSubtotal(item))}
+                {item.priceKnown === false ? '—' : formatCLP(calculateSubtotal(item))}
               </TableCell>
             </TableRow>
           ))}
@@ -76,7 +76,7 @@ export function OrderItemsTable({ items, total, imagesByProductId }: OrderItemsT
             </TableCell>
             <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
               <Typography sx={{ fontWeight: 600 }} aria-label="Total del pedido">
-                {formatCLP(total)}
+                {items.some((item) => item.priceKnown === false) ? '—' : formatCLP(total)}
               </Typography>
             </TableCell>
           </TableRow>

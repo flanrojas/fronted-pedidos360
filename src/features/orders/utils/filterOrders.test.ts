@@ -1,3 +1,4 @@
+import type { EntityId } from '@/shared/utils/entityId'
 import { makeOrder } from '@/test/fixtures/orders'
 import { customerUser, otherCustomerUser } from '@/test/testUsers'
 import { EMPTY_ORDER_FILTERS, filterOrders } from './filterOrders'
@@ -9,7 +10,7 @@ const orders = [
   makeOrder(4, otherCustomerUser, 'CANCELLED', [2026, 9, 20]),
 ]
 
-const ids = (list: { id: number }[]) => list.map((o) => o.id)
+const ids = (list: { id: EntityId }[]) => list.map((o) => o.id)
 
 describe('filterOrders', () => {
   it('sorts newest first with no filters', () => {

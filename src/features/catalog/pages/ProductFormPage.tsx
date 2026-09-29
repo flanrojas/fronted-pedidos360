@@ -1,7 +1,9 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { Button, Paper, Skeleton, Stack, Typography } from '@mui/material'
+import { Alert, Button, Paper, Skeleton, Stack, Typography } from '@mui/material'
 import { Link, useNavigate, useParams } from 'react-router'
+import { apiCapabilities } from '@/shared/api/apiMode'
 import { QueryErrorAlert } from '@/shared/components/QueryErrorAlert'
+import { isValidId, parseId } from '@/shared/utils/entityId'
 import { useNotify } from '@/shared/notifications/useNotify'
 import { getErrorMessage } from '@/shared/utils/getErrorMessage'
 import { ProductForm } from '../components/ProductForm'
@@ -11,12 +13,13 @@ import type { ProductFormValues } from '../schemas/productSchema'
 export function ProductFormPage() {
   const { id } = useParams()
   const isEdit = id !== undefined
-  const productId = isEdit ? Number(id) : undefined
+  const productId = isEdit ? parseId(id) : undefined
   const navigate = useNavigate()
   const notify = useNotify()
+  const canEdit = apiCapabilities().catalog.edit
 
   const productsQuery = useProducts()
-  const productQuery = useProduct(productId)
+  const productQuery = useProduct(productId, { enabled: canEdit })
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
   const mutation = isEdit ? updateProduct : createProduct
@@ -49,7 +52,10 @@ export function ProductFormPage() {
   }
 
   const renderBody = () => {
-    if (isEdit && !Number.isInteger(productId)) {
+    if (isEdit && !canEdit) {
+      return <Alert severity="info">El backend todavía no permite editar productos.</Alert>
+    }
+    if (isEdit && !isValidId(productId)) {
       return <QueryErrorAlert message="El identificador del producto no es válido." />
     }
     const loading = productsQuery.isPending || (isEdit && productQuery.isPending)

@@ -1,8 +1,9 @@
 import LogoutIcon from '@mui/icons-material/Logout'
 import MenuIcon from '@mui/icons-material/Menu'
 import { AppBar, Box, Button, Chip, Drawer, IconButton, Toolbar, Typography } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { useState } from 'react'
-import { Navigate, Outlet, useNavigate } from 'react-router'
+import { Navigate, Outlet } from 'react-router'
 import { ROLE_LABELS } from '@/auth/types'
 import { useAuth } from '@/auth/useAuth'
 import { NavMenu } from './NavMenu'
@@ -10,17 +11,15 @@ import { BRAND } from './theme'
 
 const DRAWER_WIDTH = 240
 
-/** Coffee-beans photo behind the menu, faded by a cream overlay (photo ~12% visible). */
 const MENU_BACKGROUND = {
-  backgroundColor: BRAND.paper,
-  backgroundImage: `linear-gradient(rgba(255, 252, 247, 0.88), rgba(255, 252, 247, 0.88)), url('/images/menu-fondo.jpg')`,
+  backgroundColor: BRAND.background,
+  backgroundImage: `linear-gradient(${alpha(BRAND.background, 0.88)}, ${alpha(BRAND.background, 0.88)}), url('/images/papas.jpg')`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
 } as const
 
 export function AppLayout() {
   const { currentUser, logout } = useAuth()
-  const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   if (!currentUser) {
@@ -29,13 +28,31 @@ export function AppLayout() {
 
   const handleLogout = () => {
     logout()
-    navigate('/login', { replace: true })
   }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar sx={{ gap: 1 }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          color: BRAND.navy,
+          background: `linear-gradient(90deg, ${BRAND.yellowLight}, ${BRAND.yellow})`,
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: "url('/images/mis-pedidos-comida.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'right center',
+            opacity: 0.15,
+            maskImage: 'linear-gradient(90deg, transparent 35%, black 100%)',
+            WebkitMaskImage: 'linear-gradient(90deg, transparent 35%, black 100%)',
+            pointerEvents: 'none',
+          },
+        }}
+      >
+        <Toolbar sx={{ gap: 1, position: 'relative' }}>
           <IconButton
             color="inherit"
             edge="start"
@@ -48,13 +65,15 @@ export function AppLayout() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} noWrap>
             Pedidos360
           </Typography>
+
           <Typography variant="body2" noWrap sx={{ display: { xs: 'none', sm: 'block' } }}>
             {currentUser.name}
           </Typography>
+
           <Chip
             label={ROLE_LABELS[currentUser.role]}
             size="small"
-            sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', color: 'inherit' }}
+            sx={{ bgcolor: alpha(BRAND.navy, 0.1), color: 'inherit' }}
           />
           <Button
             color="inherit"
@@ -71,7 +90,6 @@ export function AppLayout() {
       </AppBar>
 
       <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
-        {/* Mobile: temporary drawer, only mounted while open */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -83,7 +101,6 @@ export function AppLayout() {
         >
           <NavMenu role={currentUser.role} onNavigate={() => setMobileOpen(false)} />
         </Drawer>
-        {/* Desktop: permanent drawer */}
         <Drawer
           variant="permanent"
           open

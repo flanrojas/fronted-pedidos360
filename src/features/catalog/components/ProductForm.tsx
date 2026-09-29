@@ -3,12 +3,12 @@ import { Button, InputAdornment, Stack, TextField } from '@mui/material'
 import { useMemo } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router'
+import { apiCapabilities } from '@/shared/api/apiMode'
 import { createProductSchema, type ProductFormValues } from '../schemas/productSchema'
 import type { Product } from '../types'
 import { ProductImageField } from './ProductImageField'
 
 interface ProductFormProps {
-  /** Present when editing. */
   product?: Product
   existingProducts: readonly Product[]
   submitting: boolean
@@ -17,9 +17,10 @@ interface ProductFormProps {
 
 export function ProductForm({ product, existingProducts, submitting, onSubmit }: ProductFormProps) {
   const isEdit = product !== undefined
+  const { extendedFields } = apiCapabilities().catalog
   const schema = useMemo(
-    () => createProductSchema(existingProducts, product?.id),
-    [existingProducts, product?.id],
+    () => createProductSchema(existingProducts, product?.id, { requireSku: extendedFields }),
+    [existingProducts, product?.id, extendedFields],
   )
   const {
     control,
@@ -50,14 +51,16 @@ export function ProductForm({ product, existingProducts, submitting, onSubmit }:
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate aria-label="Formulario de producto">
       <Stack spacing={2}>
-        <TextField
-          {...skuField}
-          inputRef={skuRef}
-          label="SKU"
-          required
-          error={!!errors.sku}
-          helperText={errors.sku?.message}
-        />
+        {extendedFields && (
+          <TextField
+            {...skuField}
+            inputRef={skuRef}
+            label="SKU"
+            required
+            error={!!errors.sku}
+            helperText={errors.sku?.message}
+          />
+        )}
         <TextField
           {...nameField}
           inputRef={nameRef}
@@ -66,15 +69,17 @@ export function ProductForm({ product, existingProducts, submitting, onSubmit }:
           error={!!errors.name}
           helperText={errors.name?.message}
         />
-        <TextField
-          {...descriptionField}
-          inputRef={descriptionRef}
-          label="Descripción"
-          multiline
-          minRows={2}
-          error={!!errors.description}
-          helperText={errors.description?.message}
-        />
+        {extendedFields && (
+          <TextField
+            {...descriptionField}
+            inputRef={descriptionRef}
+            label="Descripción"
+            multiline
+            minRows={2}
+            error={!!errors.description}
+            helperText={errors.description?.message}
+          />
+        )}
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
           <TextField
             {...priceField}
@@ -105,19 +110,21 @@ export function ProductForm({ product, existingProducts, submitting, onSubmit }:
           />
         </Stack>
 
-        <Controller
-          control={control}
-          name="imageUrl"
-          render={({ field }) => (
-            <ProductImageField
-              value={field.value}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              error={errors.imageUrl?.message}
-              productName={name}
-            />
-          )}
-        />
+        {extendedFields && (
+          <Controller
+            control={control}
+            name="imageUrl"
+            render={({ field }) => (
+              <ProductImageField
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.imageUrl?.message}
+                productName={name}
+              />
+            )}
+          />
+        )}
 
         <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
           <Button component={Link} to="/catalog">

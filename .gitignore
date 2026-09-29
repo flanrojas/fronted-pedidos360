@@ -26,5 +26,5 @@ dist-ssr
 # Environment
 .env
 
-# Mock database (regenerate with npm run mock:reset)
+# Base de datos local antigua: se conserva fuera del control de versiones.
 mock/db.json

@@ -13,12 +13,10 @@ const ACTION_LABELS: Record<OrderStatus, string> = {
 
 interface OrderStatusActionsProps {
   status: OrderStatus
-  /** Target status currently being applied (shows a spinner on that button). */
   pendingStatus?: OrderStatus
   onAction: (to: OrderStatus) => void
 }
 
-/** One button per transition allowed from `status` by the state machine. */
 export function OrderStatusActions({ status, pendingStatus, onAction }: OrderStatusActionsProps) {
   const transitions = getAllowedTransitions(status)
   if (transitions.length === 0) return null

@@ -5,7 +5,6 @@ interface ProductFilters {
   status: ProductStatusFilter
 }
 
-/** Filters by name or SKU (case-insensitive) and by active status. */
 export function filterProducts(products: readonly Product[], { search, status }: ProductFilters) {
   const term = search.trim().toLowerCase()
 

@@ -1,14 +1,13 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
-import { usersService } from '@/features/users/services/usersService'
+import type { User } from '@/auth/types'
 import { makeOrder } from '@/test/fixtures/orders'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { customerUser, operatorUser, otherCustomerUser } from '@/test/testUsers'
 import { ordersService } from '../services/ordersService'
 import { OrderListPage } from './OrderListPage'
 
-vi.mock('@/features/users/services/usersService')
 vi.mock('../services/ordersService')
 
 const routes: RouteObject[] = [
@@ -29,7 +28,6 @@ function rows() {
 
 describe('OrderListPage', () => {
   beforeEach(() => {
-    vi.mocked(usersService.list).mockResolvedValue([customerUser, otherCustomerUser])
     vi.mocked(ordersService.list).mockImplementation(async ({ customerId } = {}) =>
       customerId === undefined ? allOrders : allOrders.filter((o) => o.customerId === customerId),
     )
@@ -84,5 +82,34 @@ describe('OrderListPage', () => {
     renderWithProviders({ user: customerUser, initialPath: '/orders', routes })
 
     expect(await screen.findByText('Aún no hay pedidos')).toBeInTheDocument()
+  })
+})
+
+describe('OrderListPage with backend IDs', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('shows the current customer’s backend orders', async () => {
+    const frontUser: User = {
+      id: 'front-001',
+      name: 'Cliente front-001',
+      email: 'front-001@pedidos360.local',
+      role: 'CUSTOMER',
+    }
+    const order = makeOrder(5, frontUser, 'CREATED', [2026, 9, 28])
+    vi.mocked(ordersService.list).mockResolvedValue([{
+      ...order,
+      id: 'uuid-order',
+      total: 0,
+      items: order.items.map((item) => ({ ...item, priceKnown: false })),
+    }])
+    renderWithProviders({ user: frontUser, initialPath: '/orders', routes })
+
+    const table = await screen.findByRole('table', { name: 'Listado de pedidos' })
+    expect(ordersService.list).toHaveBeenCalledWith({ customerId: 'front-001' })
+    const row = within(table).getByRole('row', { name: 'Pedido N° uuid-order' })
+    expect(within(row).getByText('—')).toBeInTheDocument()
+    expect(screen.queryByRole('form', { name: 'Buscar pedido' })).not.toBeInTheDocument()
   })
 })

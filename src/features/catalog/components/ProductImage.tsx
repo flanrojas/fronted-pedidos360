@@ -8,7 +8,6 @@ interface ProductImageProps {
   sx?: SxProps<Theme>
 }
 
-/** Product photo with a neutral placeholder when there is none or it fails to load. */
 export function ProductImage({ src, alt, sx }: ProductImageProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
   const showPlaceholder = !src || failedSrc === src

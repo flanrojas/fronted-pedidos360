@@ -34,7 +34,7 @@ async function actionNames() {
 }
 
 describe('OrderDetailPage', () => {
-  it('shows order data, items, total, status and history', async () => {
+  it('shows order data, items, total and status', async () => {
     renderDetail(makeOrder(5, customerUser, 'CREATED', [2026, 9, 20]))
 
     expect(await screen.findByRole('heading', { name: 'Pedido N° 5' })).toBeInTheDocument()
@@ -42,8 +42,7 @@ describe('OrderDetailPage', () => {
     const items = screen.getByRole('table', { name: 'Ítems del pedido' })
     expect(within(items).getByText('Café en grano 1 kg')).toBeInTheDocument()
     expect(screen.getByLabelText('Total del pedido')).toHaveTextContent('$31.980')
-    const history = screen.getByRole('list', { name: 'Historial de estados' })
-    expect(within(history).getByText('Creado')).toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: 'Historial de estados' })).not.toBeInTheDocument()
   })
 
   it.each<[OrderStatus, string[]]>([
@@ -125,7 +124,7 @@ describe('OrderDetailPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Cancelar pedido' }))
     const dialog = await screen.findByRole('dialog', { name: 'Cancelar pedido' })
-    expect(dialog).toHaveTextContent('El stock reservado se devolverá')
+    expect(dialog).toHaveTextContent('Esta acción no se puede deshacer')
     expect(ordersService.changeStatus).not.toHaveBeenCalled()
 
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar pedido' }))
@@ -164,7 +163,7 @@ describe('OrderDetailPage', () => {
     expect(screen.getByLabelText('Total del pedido')).toHaveTextContent('$31.980')
   })
 
-  it('uses the palette orange for the back arrow and the history dots', async () => {
+  it('uses the palette yellow for the back arrow', async () => {
     const order = makeOrder(5, customerUser, 'CREATED', [2026, 9, 20])
     order.status = 'ACCEPTED'
     order.history.push({ status: 'ACCEPTED', at: '2026-09-21T15:00:00.000Z', by: 'Carlos Muñoz' })
@@ -174,10 +173,21 @@ describe('OrderDetailPage', () => {
     const back = screen.getByRole('link', { name: 'Volver a pedidos' })
     expect(back.querySelector('svg')).toHaveClass('MuiSvgIcon-colorSecondary')
 
-    const history = screen.getByRole('list', { name: 'Historial de estados' })
-    const dots = [...history.querySelectorAll('svg')]
-    expect(dots).toHaveLength(2)
-    for (const dot of dots) expect(dot).toHaveClass('MuiSvgIcon-colorSecondary')
-    expect(dots.map((d) => d.getAttribute('data-current'))).toEqual([null, 'true'])
+  })
+})
+
+describe('OrderDetailPage with backend IDs', () => {
+
+  it('shows a UUID order without history and explains the backend limits', async () => {
+    const order = { ...makeOrder(5, customerUser, 'CREATED', [2026, 9, 20]), id: 'uuid-order' }
+    vi.mocked(catalogService.list).mockResolvedValue([])
+    vi.mocked(ordersService.getById).mockResolvedValue(order)
+    renderWithProviders({ user: operatorUser, initialPath: '/orders/uuid-order', routes })
+
+    expect(await screen.findByRole('heading', { name: 'Pedido N° uuid-order' })).toBeInTheDocument()
+    expect(ordersService.getById).toHaveBeenCalledWith('uuid-order')
+    expect(screen.queryByRole('list', { name: 'Historial de estados' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/Última actualización/)).not.toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Aceptar' })).toBeInTheDocument()
   })
 })

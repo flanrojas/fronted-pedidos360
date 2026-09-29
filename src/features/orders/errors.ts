@@ -1,6 +1,6 @@
+import type { EntityId } from '@/shared/utils/entityId'
 import { STATUS_LABELS, type OrderStatus } from './types'
 
-/** Base class for business-rule violations in the orders domain. */
 export class OrderDomainError extends Error {
   constructor(message: string) {
     super(message)
@@ -21,7 +21,7 @@ export class InvalidTransitionError extends OrderDomainError {
 }
 
 export interface StockShortage {
-  productId: number
+  productId: EntityId
   productName: string
   requested: number
   available: number

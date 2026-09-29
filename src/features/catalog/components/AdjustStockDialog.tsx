@@ -14,7 +14,7 @@ import {
 import { useMemo } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useNotify } from '@/shared/notifications/useNotify'
-import { useUpdateProductStock } from '../hooks/useProducts'
+import { useAdjustProductStock } from '../hooks/useProducts'
 import { createAdjustStockSchema, type AdjustStockFormValues } from '../schemas/adjustStockSchema'
 import type { Product } from '../types'
 import { applyStockAdjustment } from '../utils/stockAdjustment'
@@ -24,9 +24,8 @@ interface AdjustStockDialogProps {
   onClose: () => void
 }
 
-/** Mounted only while open, so the form starts clean for each product. */
 export function AdjustStockDialog({ product, onClose }: AdjustStockDialogProps) {
-  const updateStock = useUpdateProductStock()
+  const adjustStock = useAdjustProductStock()
   const notify = useNotify()
   const schema = useMemo(() => createAdjustStockSchema(product.stock), [product.stock])
   const {
@@ -47,11 +46,11 @@ export function AdjustStockDialog({ product, onClose }: AdjustStockDialogProps) 
 
   const onSubmit = (values: AdjustStockFormValues) => {
     const stock = applyStockAdjustment(product.stock, values.mode, values.quantity)
-    updateStock.mutate(
-      { id: product.id, stock },
+    adjustStock.mutate(
+      { product, delta: stock - product.stock },
       {
-        onSuccess: () => {
-          notify.success(`Stock de «${product.name}» actualizado a ${stock}.`)
+        onSuccess: (updated) => {
+          notify.success(`Stock de «${product.name}» actualizado a ${updated.stock}.`)
           onClose()
         },
         onError: (error) => notify.error('No se pudo ajustar el stock.', error),
@@ -106,7 +105,7 @@ export function AdjustStockDialog({ product, onClose }: AdjustStockDialogProps) 
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained" loading={updateStock.isPending}>
+          <Button type="submit" variant="contained" loading={adjustStock.isPending}>
             Guardar
           </Button>
         </DialogActions>

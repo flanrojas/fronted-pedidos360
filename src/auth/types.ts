@@ -1,7 +1,9 @@
+import type { EntityId } from '@/shared/utils/entityId'
+
 export type Role = 'ADMIN' | 'OPERATOR' | 'CUSTOMER'
 
 export interface User {
-  id: number
+  id: EntityId
   name: string
   email: string
   role: Role

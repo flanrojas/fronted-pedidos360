@@ -1,6 +1,5 @@
 export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
 
-/** Largest file accepted before resizing (the result is much smaller). */
 export const MAX_SOURCE_BYTES = 5 * 1024 * 1024
 
 interface Size {
@@ -8,7 +7,6 @@ interface Size {
   height: number
 }
 
-/** Scales `size` down (never up) so its longest side is at most `max`, keeping proportions. */
 export function fitWithin({ width, height }: Size, max: number): Size {
   const longest = Math.max(width, height)
   if (longest <= max) return { width, height }
@@ -36,17 +34,10 @@ function loadImage(file: File): Promise<HTMLImageElement> {
 }
 
 interface ResizeOptions {
-  /** Longest side of the result, in px. */
   maxSize?: number
-  /** Maximum length of the resulting data URL, in characters. */
   maxLength?: number
 }
 
-/**
- * Resizes an image file in the browser and returns it as a JPEG data URL,
- * lowering quality until it fits in `maxLength`.
- * TODO(fase2): subir el archivo a un almacenamiento de objetos y guardar solo su URL.
- */
 export async function resizeImageFile(
   file: File,
   { maxSize = 600, maxLength = 150_000 }: ResizeOptions = {},
@@ -69,7 +60,6 @@ export async function resizeImageFile(
   const context = canvas.getContext('2d')
   if (!context) throw new Error('Tu navegador no permite procesar imágenes.')
 
-  // White background so transparent PNGs don't turn black as JPEG.
   context.fillStyle = '#ffffff'
   context.fillRect(0, 0, width, height)
   context.drawImage(image, 0, 0, width, height)

@@ -14,10 +14,6 @@ interface ActiveNotification extends Notification {
   key: number
 }
 
-/**
- * Shows one notification at a time; a new one replaces the current one.
- * Success/info hide automatically; errors and warnings stay until closed.
- */
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const [current, setCurrent] = useState<ActiveNotification | null>(null)
 

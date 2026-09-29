@@ -11,12 +11,12 @@ import {
 import { useState } from 'react'
 import { ProductImage } from '@/features/catalog/components/ProductImage'
 import type { Product } from '@/features/catalog/types'
+import type { EntityId } from '@/shared/utils/entityId'
 import { formatCLP } from '@/shared/utils/formatCurrency'
 
 interface ProductPickerProps {
-  /** Only active products should be passed. */
   products: readonly Product[]
-  onAdd: (productId: number, quantity: number) => void
+  onAdd: (productId: EntityId, quantity: number) => void
 }
 
 export function ProductPicker({ products, onAdd }: ProductPickerProps) {

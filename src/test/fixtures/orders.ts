@@ -1,9 +1,9 @@
 import type { Order, OrderStatus } from '@/features/orders/types'
+import type { EntityId } from '@/shared/utils/entityId'
 
-/** Builds an order created at a local date/time (month is 1-based). */
 export function makeOrder(
-  id: number,
-  customer: { id: number; name: string },
+  id: EntityId,
+  customer: { id: EntityId; name: string },
   status: OrderStatus,
   [year, month, day, hour = 12]: [number, number, number, number?],
 ): Order {

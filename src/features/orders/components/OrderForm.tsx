@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Alert, Button, MenuItem, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Button, Stack, TextField, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router'
 import type { User } from '@/auth/types'
 import type { Product } from '@/features/catalog/types'
+import type { EntityId } from '@/shared/utils/entityId'
 import { orderFormSchema, type OrderFormValues } from '../schemas/orderFormSchema'
 import { calculateTotal } from '../utils/orderTotals'
 import { OrderLinesTable } from './OrderLinesTable'
@@ -12,9 +13,6 @@ import { ProductPicker } from './ProductPicker'
 
 interface OrderFormProps {
   products: readonly Product[]
-  /** OPERATOR: list of customers to choose from. */
-  customers?: readonly User[]
-  /** CUSTOMER: the order is always for themselves. */
   fixedCustomer?: User
   submitting: boolean
   onSubmit: (values: OrderFormValues) => void
@@ -22,7 +20,6 @@ interface OrderFormProps {
 
 export function OrderForm({
   products,
-  customers,
   fixedCustomer,
   submitting,
   onSubmit,
@@ -52,8 +49,7 @@ export function OrderForm({
     }),
   )
 
-  /** Adding a product that is already in the order adds to the existing line. */
-  const handleAdd = (productId: number, quantity: number) => {
+  const handleAdd = (productId: EntityId, quantity: number) => {
     const current = getValues('items')
     const index = current.findIndex((item) => item.productId === productId)
     if (index === -1) {
@@ -79,23 +75,16 @@ export function OrderForm({
             name="customerId"
             render={({ field }) => (
               <TextField
-                select
-                label="Cliente"
+                label="ID del cliente"
                 required
                 value={field.value ?? ''}
-                onChange={(event) => field.onChange(Number(event.target.value))}
+                onChange={(event) => field.onChange(event.target.value.trim())}
                 onBlur={field.onBlur}
                 inputRef={field.ref}
                 error={!!errors.customerId}
-                helperText={errors.customerId?.message}
+                helperText={errors.customerId?.message ?? 'Ingresa el identificador del cliente en el backend.'}
                 sx={{ maxWidth: 360 }}
-              >
-                {(customers ?? []).map((customer) => (
-                  <MenuItem key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
             )}
           />
         )}

@@ -14,11 +14,10 @@ interface Options {
   routes: RouteObject[]
 }
 
-/** Renders `routes` in a memory router with a fixed session and fresh providers. */
 export function renderWithProviders({ user, initialPath, routes }: Options) {
   const router = createMemoryRouter(routes, { initialEntries: [initialPath] })
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  const auth: AuthContextValue = { currentUser: user, login: vi.fn(), logout: vi.fn() }
+  const auth: AuthContextValue = { currentUser: user, loginWithMicrosoft: vi.fn(), logout: vi.fn() }
 
   const result = render(
     <QueryClientProvider client={queryClient}>

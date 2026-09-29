@@ -1,21 +1,18 @@
 import { z } from 'zod'
+import type { EntityId } from '@/shared/utils/entityId'
 import type { Product } from '../types'
 import { isValidImageUrl } from '../utils/productImage'
 
-// Empty numeric inputs arrive as NaN (valueAsNumber); z.number() rejects NaN with this message.
 const integerField = (label: string) =>
   z.number({ error: `${label} es obligatorio` }).refine((value) => Number.isInteger(value), {
     error: `${label} debe ser un número entero`,
     abort: true,
   })
 
-/**
- * Builds the product form schema. The SKU must be unique (case-insensitive)
- * among `existingProducts`, ignoring the product being edited (`currentId`).
- */
 export function createProductSchema(
   existingProducts: ReadonlyArray<Pick<Product, 'id' | 'sku'>>,
-  currentId?: number,
+  currentId?: EntityId,
+  { requireSku = true }: { requireSku?: boolean } = {},
 ) {
   const takenSkus = new Set(
     existingProducts
@@ -24,13 +21,15 @@ export function createProductSchema(
   )
 
   return z.object({
-    sku: z
-      .string()
-      .trim()
-      .min(1, { error: 'El SKU es obligatorio' })
-      .refine((sku) => !takenSkus.has(sku.toUpperCase()), {
-        error: 'Ya existe un producto con este SKU',
-      }),
+    sku: requireSku
+      ? z
+          .string()
+          .trim()
+          .min(1, { error: 'El SKU es obligatorio' })
+          .refine((sku) => !takenSkus.has(sku.toUpperCase()), {
+            error: 'Ya existe un producto con este SKU',
+          })
+      : z.string().trim(),
     name: z.string().trim().min(3, { error: 'El nombre debe tener al menos 3 caracteres' }),
     description: z.string().trim(),
     price: integerField('El precio').refine((value) => value > 0, {

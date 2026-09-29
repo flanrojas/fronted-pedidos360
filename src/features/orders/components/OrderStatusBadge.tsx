@@ -1,14 +1,6 @@
 import { Chip, type ChipProps } from '@mui/material'
+import { BRAND } from '@/app/theme'
 import { STATUS_LABELS, type OrderStatus } from '../types'
-
-const STATUS_COLORS: Record<OrderStatus, ChipProps['color']> = {
-  CREATED: 'info',
-  ACCEPTED: 'primary',
-  PREPARING: 'warning',
-  DISPATCHED: 'secondary',
-  DELIVERED: 'success',
-  CANCELLED: 'error',
-}
 
 interface OrderStatusBadgeProps {
   status: OrderStatus
@@ -16,12 +8,18 @@ interface OrderStatusBadgeProps {
 }
 
 export function OrderStatusBadge({ status, size = 'small' }: OrderStatusBadgeProps) {
+  const outlined = status === 'CANCELLED'
+
   return (
     <Chip
       label={STATUS_LABELS[status]}
-      color={STATUS_COLORS[status]}
       size={size}
-      variant={status === 'CANCELLED' ? 'outlined' : 'filled'}
+      variant={outlined ? 'outlined' : 'filled'}
+      sx={{
+        bgcolor: outlined ? 'transparent' : BRAND.goldDark,
+        color: outlined ? BRAND.goldDark : 'primary.contrastText',
+        borderColor: outlined ? BRAND.goldDark : undefined,
+      }}
     />
   )
 }

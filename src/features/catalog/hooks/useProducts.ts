@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { isValidId, type EntityId } from '@/shared/utils/entityId'
 import { catalogService } from '../services/catalogService'
-import type { NewProduct, ProductUpdate } from '../types'
+import type { NewProduct, Product, ProductUpdate } from '../types'
 
 export const PRODUCTS_KEY = ['products'] as const
 
@@ -11,11 +12,11 @@ export function useProducts() {
   })
 }
 
-export function useProduct(id: number | undefined) {
+export function useProduct(id: EntityId | undefined, { enabled = true } = {}) {
   return useQuery({
     queryKey: [...PRODUCTS_KEY, id],
-    queryFn: () => catalogService.getById(id as number),
-    enabled: id !== undefined && Number.isInteger(id),
+    queryFn: () => catalogService.getById(id as EntityId),
+    enabled: enabled && isValidId(id),
   })
 }
 
@@ -35,7 +36,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const invalidate = useInvalidateProducts()
   return useMutation({
-    mutationFn: ({ id, changes }: { id: number; changes: ProductUpdate }) =>
+    mutationFn: ({ id, changes }: { id: EntityId; changes: ProductUpdate }) =>
       catalogService.update(id, changes),
     onSuccess: invalidate,
   })
@@ -44,17 +45,17 @@ export function useUpdateProduct() {
 export function useSetProductActive() {
   const invalidate = useInvalidateProducts()
   return useMutation({
-    mutationFn: ({ id, active }: { id: number; active: boolean }) =>
+    mutationFn: ({ id, active }: { id: EntityId; active: boolean }) =>
       catalogService.setActive(id, active),
     onSuccess: invalidate,
   })
 }
 
-export function useUpdateProductStock() {
+export function useAdjustProductStock() {
   const invalidate = useInvalidateProducts()
   return useMutation({
-    mutationFn: ({ id, stock }: { id: number; stock: number }) =>
-      catalogService.updateStock(id, stock),
+    mutationFn: ({ product, delta }: { product: Product; delta: number }) =>
+      catalogService.adjustStock(product, delta),
     onSuccess: invalidate,
   })
 }

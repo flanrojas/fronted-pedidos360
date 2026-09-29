@@ -9,6 +9,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material'
+import { apiCapabilities } from '@/shared/api/apiMode'
 import type { ProductStatusFilter } from '../types'
 
 export type CatalogView = 'grid' | 'list'
@@ -30,10 +31,12 @@ export function CatalogToolbar({
   view,
   onViewChange,
 }: CatalogToolbarProps) {
+  const { extendedFields } = apiCapabilities().catalog
+
   return (
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
       <TextField
-        label="Buscar por nombre o SKU"
+        label={extendedFields ? 'Buscar por nombre o SKU' : 'Buscar por nombre'}
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
         size="small"
@@ -48,18 +51,20 @@ export function CatalogToolbar({
           },
         }}
       />
-      <TextField
-        select
-        label="Estado"
-        value={status}
-        onChange={(event) => onStatusChange(event.target.value as ProductStatusFilter)}
-        size="small"
-        sx={{ minWidth: 160 }}
-      >
-        <MenuItem value="all">Todos</MenuItem>
-        <MenuItem value="active">Activos</MenuItem>
-        <MenuItem value="inactive">Inactivos</MenuItem>
-      </TextField>
+      {extendedFields && (
+        <TextField
+          select
+          label="Estado"
+          value={status}
+          onChange={(event) => onStatusChange(event.target.value as ProductStatusFilter)}
+          size="small"
+          sx={{ minWidth: 160 }}
+        >
+          <MenuItem value="all">Todos</MenuItem>
+          <MenuItem value="active">Activos</MenuItem>
+          <MenuItem value="inactive">Inactivos</MenuItem>
+        </TextField>
+      )}
       <ToggleButtonGroup
         exclusive
         size="small"

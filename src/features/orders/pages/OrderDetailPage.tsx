@@ -7,11 +7,11 @@ import { can } from '@/auth/permissions'
 import { useAuth } from '@/auth/useAuth'
 import { useProducts } from '@/features/catalog/hooks/useProducts'
 import { QueryErrorAlert } from '@/shared/components/QueryErrorAlert'
+import { isValidId, parseId } from '@/shared/utils/entityId'
 import { useNotify } from '@/shared/notifications/useNotify'
 import { formatDateTime } from '@/shared/utils/formatDate'
 import { getErrorMessage } from '@/shared/utils/getErrorMessage'
 import { CancelOrderDialog } from '../components/CancelOrderDialog'
-import { OrderHistoryTimeline } from '../components/OrderHistoryTimeline'
 import { OrderItemsTable } from '../components/OrderItemsTable'
 import { OrderStatusActions } from '../components/OrderStatusActions'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
@@ -21,15 +21,17 @@ import { STATUS_LABELS, type OrderStatus } from '../types'
 
 export function OrderDetailPage() {
   const { id } = useParams()
-  const orderId = Number(id)
+  const orderId = id === undefined ? undefined : parseId(id)
   const { currentUser } = useAuth()
   const { data: order, isPending, isError, error, refetch } = useOrder(orderId)
   const changeStatus = useChangeOrderStatus()
-  // Items only snapshot name and price, so photos come from the current catalog.
-  // If products fail to load the detail still works, showing placeholders.
   const { data: products } = useProducts()
   const imagesByProductId = useMemo(
     () => new Map((products ?? []).map((product) => [product.id, product.imageUrl])),
+    [products],
+  )
+  const namesByProductId = useMemo(
+    () => new Map((products ?? []).map((product) => [product.id, product.name])),
     [products],
   )
   const [confirmCancel, setConfirmCancel] = useState(false)
@@ -48,7 +50,7 @@ export function OrderDetailPage() {
     </Button>
   )
 
-  if (!Number.isInteger(orderId)) {
+  if (!isValidId(orderId)) {
     return (
       <>
         {header}
@@ -86,8 +88,6 @@ export function OrderDetailPage() {
     )
   }
 
-  // A CUSTOMER may only see their own orders.
-  // TODO(fase2): el backend debe impedir esta lectura; aquí solo se oculta en la UI.
   if (!can(currentUser.role, 'orders:viewAll') && order.customerId !== currentUser.id) {
     return <Navigate to="/403" replace />
   }
@@ -130,14 +130,22 @@ export function OrderDetailPage() {
     }
   }
 
+  const displayItems = order.items.map((item) => ({
+    ...item,
+    productName:
+      item.productName === String(item.productId)
+        ? (namesByProductId.get(item.productId) ?? item.productName)
+        : item.productName,
+  }))
+
   return (
     <>
       {header}
       <Stack spacing={2}>
+
         <Paper sx={{ p: { xs: 2, md: 3 } }}>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
-            // flex-start: keep action buttons at their natural height instead of stretching.
             sx={{ justifyContent: 'space-between', alignItems: { sm: 'flex-start' }, gap: 2 }}
           >
             <Box>
@@ -145,7 +153,7 @@ export function OrderDetailPage() {
                 direction="row"
                 sx={{ alignItems: 'center', mb: 1, gap: 1.5, flexWrap: 'wrap' }}
               >
-                <Typography variant="h5" component="h1">
+                <Typography variant="h5" component="h1" sx={{ wordBreak: 'break-all' }}>
                   Pedido N° {order.id}
                 </Typography>
                 <OrderStatusBadge status={order.status} size="medium" />
@@ -154,8 +162,7 @@ export function OrderDetailPage() {
                 Cliente: <strong>{order.customerName}</strong>
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Creado el {formatDateTime(order.createdAt)} · Última actualización{' '}
-                {formatDateTime(order.updatedAt)}
+                Creado el {formatDateTime(order.createdAt)}
               </Typography>
             </Box>
             {canChangeStatus && (
@@ -178,17 +185,11 @@ export function OrderDetailPage() {
               Ítems
             </Typography>
             <OrderItemsTable
-              items={order.items}
+              items={displayItems}
               total={order.total}
               imagesByProductId={imagesByProductId}
             />
           </Box>
-          <Paper variant="outlined" sx={{ flex: 1, width: '100%', p: 2 }}>
-            <Typography variant="h6" component="h2">
-              Historial
-            </Typography>
-            <OrderHistoryTimeline history={order.history} />
-          </Paper>
         </Stack>
       </Stack>
 

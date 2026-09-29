@@ -1,38 +1,46 @@
 import { apiClient } from '@/shared/api/apiClient'
+import { UnsupportedByBackendError } from '@/shared/api/apiMode'
+import type { EntityId } from '@/shared/utils/entityId'
 import type { NewProduct, Product, ProductUpdate } from '../types'
+import { toBackendNewProduct, toBackendProductUpdate, toProduct, type BackendProduct } from './catalogBackend'
 
 export const catalogService = {
   async list(): Promise<Product[]> {
-    const { data } = await apiClient.get<Product[]>('/products')
-    return data
+    const { data } = await apiClient.get<BackendProduct[]>('/api/catalog')
+    return data.map(toProduct)
   },
 
-  async getById(id: number): Promise<Product> {
-    const { data } = await apiClient.get<Product>(`/products/${id}`)
-    return data
+  async getById(id: EntityId): Promise<Product> {
+    const product = (await catalogService.list()).find((item) => item.id === id)
+    if (!product) throw new Error('El producto no existe')
+    return product
   },
 
   async create(product: NewProduct): Promise<Product> {
-    const { data } = await apiClient.post<Product>('/products', product)
-    return data
+    const { data } = await apiClient.post<BackendProduct>('/api/catalog', toBackendNewProduct(product))
+    return toProduct(data)
   },
 
-  async update(id: number, changes: ProductUpdate): Promise<Product> {
-    const { data } = await apiClient.patch<Product>(`/products/${id}`, changes)
-    return data
+  async update(id: EntityId, changes: ProductUpdate): Promise<Product> {
+    const { data } = await apiClient.patch<BackendProduct>(`/api/catalog/${id}`, toBackendProductUpdate(changes))
+    return toProduct(data)
   },
 
-  /** Soft delete: products are never removed, only deactivated. */
-  async setActive(id: number, active: boolean): Promise<Product> {
-    const { data } = await apiClient.patch<Product>(`/products/${id}`, { active })
-    return data
+  async setActive(id: EntityId, active: boolean): Promise<Product> {
+    void id
+    void active
+    throw new UnsupportedByBackendError('activar o desactivar productos')
   },
 
-  async updateStock(id: number, stock: number): Promise<Product> {
-    if (!Number.isInteger(stock) || stock < 0) {
+  async adjustStock(product: Pick<Product, 'id' | 'stock'>, delta: number): Promise<Product> {
+    const stock = product.stock + delta
+    if (!Number.isInteger(delta) || !Number.isInteger(stock) || stock < 0) {
       throw new Error('El stock debe ser un entero mayor o igual a 0')
     }
-    const { data } = await apiClient.patch<Product>(`/products/${id}`, { stock })
-    return data
+    const { data } = await apiClient.patch<{ id: string; nuevo_stock: number }>(
+      `/api/catalog/${product.id}/stock`,
+      { cantidad: delta },
+    )
+    return { ...(product as Product), stock: data.nuevo_stock }
   },
 }

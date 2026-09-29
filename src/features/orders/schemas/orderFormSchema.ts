@@ -1,13 +1,16 @@
 import { z } from 'zod'
+import { isValidId, type EntityId } from '@/shared/utils/entityId'
+
+const entityId = z.custom<EntityId>((value) => isValidId(value as EntityId), {
+  error: 'Ingresa un ID de cliente válido',
+})
 
 export const orderFormSchema = z.object({
-  customerId: z
-    .number({ error: 'Selecciona un cliente' })
-    .refine((id) => Number.isInteger(id) && id > 0, { error: 'Selecciona un cliente' }),
+  customerId: entityId,
   items: z
     .array(
       z.object({
-        productId: z.number(),
+        productId: entityId,
         quantity: z
           .number({ error: 'Ingresa una cantidad' })
           .refine((value) => Number.isInteger(value), {

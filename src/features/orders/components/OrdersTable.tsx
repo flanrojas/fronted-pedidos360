@@ -53,7 +53,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
               <TableCell sx={{ whiteSpace: 'nowrap' }}>{formatDateTime(order.createdAt)}</TableCell>
               <TableCell align="right">{countUnits(order.items)}</TableCell>
               <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                {formatCLP(order.total)}
+                {order.items.some((item) => item.priceKnown === false) ? '—' : formatCLP(order.total)}
               </TableCell>
               <TableCell>
                 <OrderStatusBadge status={order.status} />

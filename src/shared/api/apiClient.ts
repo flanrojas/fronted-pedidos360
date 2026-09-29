@@ -1,11 +1,13 @@
 import axios from 'axios'
+import { getApiAccessToken } from '@/auth/entraConfig'
+import { backendBaseUrl } from './apiMode'
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
   headers: { 'Content-Type': 'application/json' },
 })
 
-apiClient.interceptors.request.use((config) => {
-  // TODO(fase2): adjuntar Authorization: Bearer <token> de MSAL
+apiClient.interceptors.request.use(async (config) => {
+  config.baseURL = backendBaseUrl()
+  config.headers.set('Authorization', `Bearer ${await getApiAccessToken()}`)
   return config
 })

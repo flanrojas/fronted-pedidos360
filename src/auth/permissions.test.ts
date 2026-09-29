@@ -1,7 +1,6 @@
 import { can, type Action } from './permissions'
 import type { Role } from './types'
 
-// Mirrors the permissions table in CLAUDE.md, cell by cell.
 const EXPECTED: Record<Action, Record<Role, boolean>> = {
   'catalog:view': { ADMIN: true, OPERATOR: true, CUSTOMER: false },
   'catalog:manage': { ADMIN: true, OPERATOR: false, CUSTOMER: false },

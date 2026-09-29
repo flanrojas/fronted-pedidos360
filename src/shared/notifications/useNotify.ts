@@ -12,7 +12,6 @@ export function useNotify() {
   return {
     notify,
     success: (message: string) => notify({ severity: 'success', message }),
-    /** Shows `prefix` plus the user-facing message extracted from `error`. */
     error: (prefix: string, error: unknown, details?: Notification['details']) =>
       notify({ severity: 'error', message: `${prefix} ${getErrorMessage(error)}`, details }),
   }

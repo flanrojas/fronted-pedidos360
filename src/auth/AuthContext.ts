@@ -3,8 +3,10 @@ import type { User } from './types'
 
 export interface AuthContextValue {
   currentUser: User | null
-  login: (user: User) => void
   logout: () => void
+  loginWithMicrosoft: () => Promise<void>
+  authLoading?: boolean
+  authError?: string | null
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

@@ -1,10 +1,11 @@
 import type { Product } from '@/features/catalog/types'
 import type { User } from '@/auth/types'
+import type { EntityId } from '@/shared/utils/entityId'
 import type { NewOrder, OrderItem } from '../types'
 import { calculateTotal } from './orderTotals'
 
 export interface OrderLineInput {
-  productId: number
+  productId: EntityId
   quantity: number
 }
 
@@ -16,10 +17,6 @@ interface BuildNewOrderInput {
   now?: Date
 }
 
-/**
- * Builds a new order in CREATED status, snapshotting product name and price.
- * Stock is NOT deducted here: that happens when the order is ACCEPTED.
- */
 export function buildNewOrder({
   customer,
   lines,

@@ -7,7 +7,6 @@ interface OrderHistoryTimelineProps {
   history: readonly StatusHistoryEntry[]
 }
 
-/** Status history in chronological order (MUI List, no @mui/lab). */
 export function OrderHistoryTimeline({ history }: OrderHistoryTimelineProps) {
   const entries = [...history].sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime())
 
@@ -21,7 +20,6 @@ export function OrderHistoryTimeline({ history }: OrderHistoryTimelineProps) {
             sx={{
               alignItems: 'flex-start',
               position: 'relative',
-              // Vertical connector between dots.
               '&::before': isLast
                 ? undefined
                 : {
@@ -36,7 +34,6 @@ export function OrderHistoryTimeline({ history }: OrderHistoryTimelineProps) {
             }}
           >
             <ListItemIcon sx={{ minWidth: 32, mt: 0.75 }}>
-              {/* Palette orange: current status solid, previous ones faded. */}
               <CircleIcon
                 color="secondary"
                 sx={{ fontSize: 14, opacity: isLast ? 1 : 0.45 }}

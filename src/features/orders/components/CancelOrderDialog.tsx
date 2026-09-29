@@ -6,6 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material'
+import { apiCapabilities } from '@/shared/api/apiMode'
 import type { Order } from '../types'
 
 interface CancelOrderDialogProps {
@@ -30,7 +31,9 @@ export function CancelOrderDialog({
         <DialogContentText>
           ¿Cancelar el pedido N° {order.id} de {order.customerName}? Esta acción no se puede
           deshacer.
-          {order.status === 'ACCEPTED' && ' El stock reservado se devolverá al catálogo.'}
+          {order.status === 'ACCEPTED' &&
+            apiCapabilities().orders.stockOnStatusChange &&
+            ' El stock reservado se devolverá al catálogo.'}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
