@@ -10,6 +10,7 @@ interface ProductCardProps {
   canManage: boolean
   onAdjustStock: (product: Product) => void
   onToggleActive: (product: Product) => void
+  onDelete?: (product: Product) => void
 }
 
 export function ProductCard({
@@ -17,6 +18,7 @@ export function ProductCard({
   canManage,
   onAdjustStock,
   onToggleActive,
+  onDelete,
 }: ProductCardProps) {
   return (
     <Card
@@ -50,6 +52,7 @@ export function ProductCard({
             product={product}
             onAdjustStock={onAdjustStock}
             onToggleActive={onToggleActive}
+            onDelete={onDelete}
           />
         </CardActions>
       )}

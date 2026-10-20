@@ -18,6 +18,7 @@ interface ProductTableProps {
   canManage: boolean
   onAdjustStock: (product: Product) => void
   onToggleActive: (product: Product) => void
+  onDelete?: (product: Product) => void
 }
 
 export function ProductTable({
@@ -25,6 +26,7 @@ export function ProductTable({
   canManage,
   onAdjustStock,
   onToggleActive,
+  onDelete,
 }: ProductTableProps) {
   return (
     <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
@@ -65,6 +67,7 @@ export function ProductTable({
                     product={product}
                     onAdjustStock={onAdjustStock}
                     onToggleActive={onToggleActive}
+                    onDelete={onDelete}
                   />
                 </TableCell>
               )}

@@ -88,4 +88,64 @@ describe('CatalogPage', () => {
     expect(await screen.findByText(/No se pudo cargar el catálogo/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument()
   })
+
+  describe('deleting a product', () => {
+    const cafe = sampleProducts[0]
+    const deleteButton = (name = cafe.name) => ({ name: `Eliminar ${name}` })
+
+    it('only ADMIN sees the delete action, in cards and in the list', async () => {
+      const user = userEvent.setup()
+      const { unmount } = renderCatalog(adminUser)
+      expect(await screen.findByRole('button', deleteButton())).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Vista de lista' }))
+      const table = screen.getByRole('table', { name: 'Listado de productos' })
+      expect(within(table).getByRole('button', deleteButton())).toBeInTheDocument()
+      unmount()
+
+      renderCatalog(operatorUser)
+      await screen.findByRole('article', { name: cafe.name })
+      expect(screen.queryByRole('button', { name: /^Eliminar/ })).not.toBeInTheDocument()
+    })
+
+    it('asks for confirmation and deletes on confirm', async () => {
+      vi.mocked(catalogService.remove).mockResolvedValue()
+      const user = userEvent.setup()
+      renderCatalog(adminUser)
+
+      await user.click(await screen.findByRole('button', deleteButton()))
+      const dialog = await screen.findByRole('dialog', { name: 'Eliminar producto' })
+      expect(dialog).toHaveTextContent('Esta acción no se puede deshacer')
+      expect(catalogService.remove).not.toHaveBeenCalled()
+
+      await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))
+      expect(catalogService.remove).toHaveBeenCalledWith(cafe.id)
+      expect(await screen.findByText(`«${cafe.name}» eliminado del catálogo.`)).toBeInTheDocument()
+    })
+
+    it('does nothing when cancelled', async () => {
+      const user = userEvent.setup()
+      renderCatalog(adminUser)
+
+      await user.click(await screen.findByRole('button', deleteButton()))
+      const dialog = await screen.findByRole('dialog', { name: 'Eliminar producto' })
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+
+      expect(catalogService.remove).not.toHaveBeenCalled()
+    })
+
+    it('shows the backend error (e.g. 403) and keeps the dialog open to retry', async () => {
+      vi.mocked(catalogService.remove).mockRejectedValue(new Error('Acceso denegado (403)'))
+      const user = userEvent.setup()
+      renderCatalog(adminUser)
+
+      await user.click(await screen.findByRole('button', deleteButton()))
+      const dialog = await screen.findByRole('dialog', { name: 'Eliminar producto' })
+      await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))
+
+      expect(
+        await screen.findByText('No se pudo eliminar el producto. Acceso denegado (403)'),
+      ).toBeInTheDocument()
+      expect(screen.getByRole('dialog', { name: 'Eliminar producto' })).toBeInTheDocument()
+    })
+  })
 })

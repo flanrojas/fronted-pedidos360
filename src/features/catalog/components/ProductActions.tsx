@@ -1,3 +1,4 @@
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ToggleOffIcon from '@mui/icons-material/ToggleOff'
@@ -11,9 +12,16 @@ interface ProductActionsProps {
   product: Product
   onAdjustStock: (product: Product) => void
   onToggleActive: (product: Product) => void
+  /** Only passed for roles allowed to delete (catalog:delete). */
+  onDelete?: (product: Product) => void
 }
 
-export function ProductActions({ product, onAdjustStock, onToggleActive }: ProductActionsProps) {
+export function ProductActions({
+  product,
+  onAdjustStock,
+  onToggleActive,
+  onDelete,
+}: ProductActionsProps) {
   const toggleLabel = product.active ? 'Desactivar' : 'Activar'
   const { catalog } = apiCapabilities()
 
@@ -55,6 +63,18 @@ export function ProductActions({ product, onAdjustStock, onToggleActive }: Produ
             ) : (
               <ToggleOffIcon fontSize="small" />
             )}
+          </IconButton>
+        </Tooltip>
+      )}
+      {onDelete && (
+        <Tooltip title="Eliminar">
+          <IconButton
+            onClick={() => onDelete(product)}
+            aria-label={`Eliminar ${product.name}`}
+            size="small"
+            color="error"
+          >
+            <DeleteOutlineIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       )}

@@ -4,6 +4,7 @@ import type { Role } from './types'
 const EXPECTED: Record<Action, Record<Role, boolean>> = {
   'catalog:view': { ADMIN: true, OPERATOR: true, CUSTOMER: false },
   'catalog:manage': { ADMIN: true, OPERATOR: false, CUSTOMER: false },
+  'catalog:delete': { ADMIN: true, OPERATOR: false, CUSTOMER: false },
   'orders:view': { ADMIN: true, OPERATOR: true, CUSTOMER: true },
   'orders:viewAll': { ADMIN: true, OPERATOR: true, CUSTOMER: false },
   'orders:create': { ADMIN: false, OPERATOR: true, CUSTOMER: true },

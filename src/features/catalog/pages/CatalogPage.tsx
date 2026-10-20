@@ -8,6 +8,7 @@ import { EmptyState } from '@/shared/components/EmptyState'
 import { QueryErrorAlert } from '@/shared/components/QueryErrorAlert'
 import { getErrorMessage } from '@/shared/utils/getErrorMessage'
 import { AdjustStockDialog } from '../components/AdjustStockDialog'
+import { DeleteProductDialog } from '../components/DeleteProductDialog'
 import { CatalogSkeleton } from '../components/CatalogSkeleton'
 import { CatalogToolbar, type CatalogView } from '../components/CatalogToolbar'
 import { ProductCard } from '../components/ProductCard'
@@ -21,6 +22,7 @@ import { filterProducts } from '../utils/filterProducts'
 export function CatalogPage() {
   const { currentUser } = useAuth()
   const canManage = currentUser !== null && can(currentUser.role, 'catalog:manage')
+  const canDelete = currentUser !== null && can(currentUser.role, 'catalog:delete')
   const { data: products, isPending, isError, error, refetch } = useProducts()
 
   const [search, setSearch] = useState('')
@@ -28,6 +30,9 @@ export function CatalogPage() {
   const [view, setView] = useState<CatalogView>('grid')
   const [adjusting, setAdjusting] = useState<Product | null>(null)
   const [toggling, setToggling] = useState<Product | null>(null)
+  const [deleting, setDeleting] = useState<Product | null>(null)
+  // Only roles with catalog:delete get the delete action.
+  const onDelete = canDelete ? setDeleting : undefined
 
   const visibleProducts = useMemo(
     () => filterProducts(products ?? [], { search, status }),
@@ -62,6 +67,7 @@ export function CatalogPage() {
           canManage={canManage}
           onAdjustStock={setAdjusting}
           onToggleActive={setToggling}
+          onDelete={onDelete}
         />
       )
     }
@@ -74,6 +80,7 @@ export function CatalogPage() {
             canManage={canManage}
             onAdjustStock={setAdjusting}
             onToggleActive={setToggling}
+            onDelete={onDelete}
           />
         ))}
       </Box>
@@ -115,6 +122,7 @@ export function CatalogPage() {
 
       {adjusting && <AdjustStockDialog product={adjusting} onClose={() => setAdjusting(null)} />}
       {toggling && <ToggleActiveDialog product={toggling} onClose={() => setToggling(null)} />}
+      {deleting && <DeleteProductDialog product={deleting} onClose={() => setDeleting(null)} />}
     </>
   )
 }

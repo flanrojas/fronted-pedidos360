@@ -26,6 +26,11 @@ export const catalogService = {
     return toProduct(data)
   },
 
+  /** Permanent delete. Only Administrador (the backend answers 403 otherwise, 404 if missing). */
+  async remove(id: EntityId): Promise<void> {
+    await apiClient.delete(`/api/catalog/${id}`)
+  },
+
   async setActive(id: EntityId, active: boolean): Promise<Product> {
     void id
     void active

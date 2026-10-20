@@ -42,6 +42,14 @@ export function useUpdateProduct() {
   })
 }
 
+export function useDeleteProduct() {
+  const invalidate = useInvalidateProducts()
+  return useMutation({
+    mutationFn: (id: EntityId) => catalogService.remove(id),
+    onSuccess: invalidate,
+  })
+}
+
 export function useSetProductActive() {
   const invalidate = useInvalidateProducts()
   return useMutation({
