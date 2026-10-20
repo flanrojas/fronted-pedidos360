@@ -34,7 +34,7 @@ describe('catalogService.remove', () => {
 
   it.each([
     [403, 'Acceso denegado'],
-    [404, 'Producto no encontrado'],
+    [500, 'Error interno'],
   ])('propagates backend errors (%s)', async (status, message) => {
     vi.mocked(apiClient.delete).mockRejectedValue(httpError(status, { error: message }))
 
